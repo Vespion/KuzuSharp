@@ -1,8 +1,0 @@
-<Project>
-	<PropertyGroup>
-		<Os>linux</Os>
-		<Arch>arm64</Arch>
-	</PropertyGroup>
-
-	<Import Project="$(MSBuildThisFileDirectory)../setup.base.targets" />
-</Project>

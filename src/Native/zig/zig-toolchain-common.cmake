@@ -17,5 +17,7 @@ set(CMAKE_RANLIB "${CMAKE_CURRENT_LIST_DIR}/zig-ranlib${SCRIPT_SUFFIX}")
 
 cmake_minimum_required(VERSION 3.5)
 
+set(CMAKE_RC_COMPILER "${CMAKE_CURRENT_LIST_DIR}/zig-rc${SCRIPT_SUFFIX}")
+
 # Compile a static library as the test target
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")

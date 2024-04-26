@@ -1,3 +1,4 @@
 [submodule "src/Native/kuzu"]
 	path = src/Native/kuzu
 	url = https://github.com/kuzudb/kuzu
+	branch = v0.3.2

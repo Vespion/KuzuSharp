@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.Build.NoTargets">
+<Project Sdk="Vezel.Zig.Sdk">
 	<ItemGroup>
 		<PackageReference Remove="JetBrains.Annotations" />
 	</ItemGroup>
@@ -46,9 +46,5 @@
 
 	<ItemGroup>
 	  <None Include="kuzu\*" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="obj\Debug\" />
 	</ItemGroup>
 </Project>

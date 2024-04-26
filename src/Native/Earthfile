@@ -7,19 +7,32 @@ setup-linux:
 	RUN --mount=target=/var/cache/pacman/pkg,type=cache,sharing=locked \
     	pacman --noconfirm -S zig python3 make cmake
 
+setup-native-builder:
+	FROM alpine:3.19
+	RUN --mount=target=/var/cache/apk,type=cache,sharing=locked \
+		apk update \
+		&& apk add zig --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
+		&& apk add make cmake
+
 build-native:
 	ARG --required OS
 	ARG --required ARCH
 	ARG CONFIGURATION=Release
 	ARG OUTPUT_DIR=./obj/$CONFIGURATION/libs
 
-	FROM +setup-linux
+	FROM +setup-native-builder
 
 	LET threadNum=$(nproc)
 
 	LET target = release
 	IF [ "$CONFIGURATION" = "Debug" ]
 		SET target = debug
+	END
+
+	IF [ "$OS" = "win" ]
+		COPY link-script.sh link-script.sh
+		RUN chmod +x link-script.sh
+		RUN ./link-script.sh
 	END
 
 	WORKDIR src
@@ -36,5 +49,5 @@ build-all-native:
 	ARG CONFIGURATION=Release
 	ARG OUTPUT_DIR=./obj/$CONFIGURATION/libs
 	BUILD +build-native --OS=linux --OS=linux-musl --ARCH=x64 --ARCH=x86 --ARCH=arm --ARCH=arm64 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR
-	#BUILD +build-native --OS=linux-musl --ARCH=x64 --ARCH=x86 --ARCH=arm --ARCH=arm64 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR
-	#BUILD +build-native --OS=win --ARCH=x64 --ARCH=x86 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR
+	BUILD +build-native --OS=osx --ARCH=x64 --ARCH=arm64 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR
+	BUILD +build-native --OS=win --ARCH=x64 --ARCH=x86 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR

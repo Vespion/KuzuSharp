@@ -1,8 +1,0 @@
-<Project>
-	<PropertyGroup>
-		<Os>darwin</Os>
-		<Arch>arm64</Arch>
-	</PropertyGroup>
-
-	<Import Project="$(MSBuildThisFileDirectory)../setup.base.targets" />
-</Project>
