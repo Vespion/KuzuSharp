@@ -1,0 +1,11 @@
+<Project>
+	<Target Name="Build">
+		<Exec
+				CustomErrorRegularExpression="Error *: *(.*)$"
+				YieldDuringToolExecution="true"
+				EchoOff="false"
+				UseCommandProcessor="false"
+				Command="earthly --config $(MSBuildThisFileDirectory)../earthly-config.yml --platform=$(Os)/$(Arch) $(MSBuildThisFileDirectory)..+build --KUZU_VERSION=$(Version) --artifact '$(MSBuildThisFileDirectory)..+build/* $([System.IO.Path]::GetFullPath('$(IntermediateOutputPath)libs'))'"
+		/>
+	</Target>
+</Project>

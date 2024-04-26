@@ -1,0 +1,8 @@
+<Project>
+	<PropertyGroup>
+		<Os>linux</Os>
+		<Arch>amd64</Arch>
+	</PropertyGroup>
+
+	<Import Project="$(MSBuildThisFileDirectory)../build.base.targets" />
+</Project>

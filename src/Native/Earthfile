@@ -1,0 +1,40 @@
+VERSION 0.8
+
+setup-linux:
+	FROM archlinux:base
+	RUN --mount=target=/var/cache/pacman/pkg,type=cache,sharing=locked \
+		pacman -Syu --noconfirm
+	RUN --mount=target=/var/cache/pacman/pkg,type=cache,sharing=locked \
+    	pacman --noconfirm -S zig python3 make cmake
+
+build-native:
+	ARG --required OS
+	ARG --required ARCH
+	ARG CONFIGURATION=Release
+	ARG OUTPUT_DIR=./obj/$CONFIGURATION/libs
+
+	FROM +setup-linux
+
+	LET threadNum=$(nproc)
+
+	LET target = release
+	IF [ "$CONFIGURATION" = "Debug" ]
+		SET target = debug
+	END
+
+	WORKDIR src
+	COPY zig zig
+	COPY kuzu kuzu
+	WORKDIR kuzu
+
+	RUN CMAKE_FLAGS="-DBUILD_SHELL=FALSE" make CMAKE_TOOLCHAIN_FILE=../zig/zig-toolchain-$ARCH-$OS.cmake SKIP_SINGLE_FILE_HEADER=1 NUM_THREADS=$threadNum $target
+	RUN cmake --install build/$target --prefix install --strip
+
+	SAVE ARTIFACT --keep-ts --if-exists install/lib/libkuzu* /$OS/$ARCH/ AS LOCAL $OUTPUT_DIR/$OS/$ARCH/
+
+build-all-native:
+	ARG CONFIGURATION=Release
+	ARG OUTPUT_DIR=./obj/$CONFIGURATION/libs
+	BUILD +build-native --OS=linux --OS=linux-musl --ARCH=x64 --ARCH=x86 --ARCH=arm --ARCH=arm64 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR
+	#BUILD +build-native --OS=linux-musl --ARCH=x64 --ARCH=x86 --ARCH=arm --ARCH=arm64 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR
+	#BUILD +build-native --OS=win --ARCH=x64 --ARCH=x86 --CONFIGURATION=$CONFIGURATION --OUTPUT_DIR=$OUTPUT_DIR

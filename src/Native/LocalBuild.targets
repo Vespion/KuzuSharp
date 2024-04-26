@@ -1,0 +1,148 @@
+<Project>
+	<ItemGroup>
+		<Earthfile Include="$(MSBuildThisFileDirectory)Earthfile"/>
+		<_NativeLinux64 Include="$(NativeLibObjDirectorylinux/x64/*"/>
+		<_NativeLinux86 Include="$(NativeLibObjDirectorylinux/x86/*"/>
+		<_NativeLinuxArm Include="$(NativeLibObjDirectory)linux/arm/*"/>
+		<_NativeLinuxArm64 Include="$(NativeLibObjDirectory)linux/arm64/*"/>
+		<_NativeLinuxMuslx64 Include="$(NativeLibObjDirectorylinux-musl/x64/*"/>
+		<_NativeLinuMuslx86 Include="$(NativeLibObjDirectorylinux-musl/x86/*"/>
+		<_NativeLinuxMuslArm Include="$(NativeLibObjDirectory)linux-musl/arm/*"/>
+		<_NativeLinuxMuslArm64 Include="$(NativeLibObjDirectory)linux-musl/arm64/*"/>
+		<_KuzuSourceFiles Include="kuzu/*"/>
+		<_NativeFiles Include="@(_NativeLinux64);@(_NativeLinux86);@(_NativeLinuxArm);@(_NativeLinuxArm64);@(_NativeLinuxMusl64);@(_NativeLinuxMusl86);@(_NativeLinuxMuslArm);@(_NativeLinuxMuslArm64)"/>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<_NativeBuildTargets>
+			BuildNativeLibs_Linux_x64;
+			BuildNativeLibs_Linux_x86;
+			BuildNativeLibs_Linux_arm;
+			BuildNativeLibs_Linux_arm64;
+			BuildNativeLibs_Linux_musl_x64;
+			BuildNativeLibs_Linux_musl_x86;
+			BuildNativeLibs_Linux_musl_arm;
+			BuildNativeLibs_Linux_musl_arm64;
+		</_NativeBuildTargets>
+		<_NativeBuildCmdBase>earthly %(Earthfile.RelativeDir)+build-native --CONFIGURATION=$(Configuration) --OUTPUT_DIR=$(NativeLibObjDirectory)</_NativeBuildCmdBase>
+	</PropertyGroup>
+
+	<Target Name="PrepNativeBuilders" Inputs="@(Earthfile)" Outputs="@(Earthfile->'@(_NativeFiles)')" Condition="'$(IsCrossTargetingBuild)' == 'true'">
+		<Exec Command="earthly %(Earthfile.RelativeDir)+setup-linux" YieldDuringToolExecution="true"/>
+	</Target>
+
+	<!-- This must run before the nuspec/package spec is generated and before FileWrites is persisted to cache-->
+	<Target
+			Name="BuildNativeLibs"
+			BeforeTargets="GenerateNuspec;PrepareForRun"
+			DependsOnTargets="$(_NativeBuildTargets)"
+			Condition="'$(IsCrossTargetingBuild)' == 'true'"
+	>
+
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_x64"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinux64)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux --ARCH=x64" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinux64)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_musl_x64"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinux64)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux-musl --ARCH=x64" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinuxMusl64)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_x86"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinux86)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux --ARCH=x86" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinux86)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_musl_x86"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinuxMusl86)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux-musl --ARCH=x86" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinuxMusl86)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_arm"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinuxArm)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux --ARCH=arm" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinuxArm)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_musl_arm"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinuxMuslArm)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux-musl --ARCH=arm" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinuxMuslArm)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_arm64"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinuxArm64)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux --ARCH=arm64" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinuxArm64)"/>
+		</ItemGroup>
+	</Target>
+
+	<Target
+			Name="BuildNativeLibs_Linux_musl_arm64"
+			Inputs="@(Earthfile);@(_KuzuSourceFiles)"
+			Outputs="@(_KuzuSourceFiles->'@(_NativeLinuxMuslArm64)')"
+			DependsOnTargets="PrepNativeBuilders"
+	>
+		<Exec YieldDuringToolExecution="true" CustomWarningRegularExpression="" Command="$(_NativeBuildCmdBase) --OS=linux-musl --ARCH=arm64" />
+
+		<ItemGroup>
+			<FileWrites Include="@(_NativeLinuxMuslArm64)"/>
+		</ItemGroup>
+	</Target>
+
+</Project>

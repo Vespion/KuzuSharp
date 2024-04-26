@@ -9,4 +9,24 @@
 	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" PrivateAssets="all" />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<Company>Vespion Softworks</Company>
+		<Product>KuzuSharp</Product>
+		<Authors>Vespion</Authors>
+		<Copyright>Vespion</Copyright>
+		<RepositoryUrl>https://github.com/Vespion/KuzuSharp</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIconUrl>https://raw.githubusercontent.com/kuzudb/kuzu/master/logo/kuzu-logo.png</PackageIconUrl>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)kuzu-logo.png" Pack="true" PackagePath="icon.png" Visible="false"/>
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
 </Project>
